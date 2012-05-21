@@ -24,7 +24,7 @@ public class ObjectMapperTest {
 	public void foo() throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Quote quote = objectMapper.readValue(new ByteArrayInputStream(BLA2.getBytes()), Quote.class);
-		System.out.print(quote.getTest().getOpen());
+		System.out.print(quote.getOpen());
 	}
 	
 	@Test
