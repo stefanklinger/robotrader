@@ -47,6 +47,7 @@ public class StockLyticsQuoteReceiver implements QuoteReceiver {
 			quote.setLow(NumberUtils.toDouble((String) quoteInfo.get("low")));
 			quote.setOpen(NumberUtils.toDouble((String) quoteInfo.get("open")));
 			quote.setVolume(NumberUtils.toLong((String) quoteInfo.get("volume")));
+			quote.setStock(stock);
 		}
 		return quotes;
 	}

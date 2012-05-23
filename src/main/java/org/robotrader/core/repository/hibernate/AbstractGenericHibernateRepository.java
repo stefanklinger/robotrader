@@ -18,6 +18,7 @@ public abstract class AbstractGenericHibernateRepository<T, ID extends Serializa
 	private final Class<T> persistentClass;
 	private final SessionFactory sessionFactory;
 
+	@SuppressWarnings("unchecked")
 	public AbstractGenericHibernateRepository(SessionFactory sessionFactory) {
 		this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
 				.getGenericSuperclass()).getActualTypeArguments()[0];

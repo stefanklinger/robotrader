@@ -18,15 +18,26 @@
 		<property name="packagesToScan" value="org.robotrader.quote.domain" />
 	</bean>
 
+	<bean
+		class="org.robotrader.quote.repository.hibernate.HibernatQuoteRepository">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean name="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
 	<bean id="quoteReceiver"
 		class="org.robotrader.quote.service.stocklytics.StockLyticsQuoteReceiver">
 		<constructor-arg ref="restTemplate" />
-		<constructor-arg value="b1305099774d5d67a84b5f1915909cfc6d2d85b5"/>
+		<constructor-arg value="b1305099774d5d67a84b5f1915909cfc6d2d85b5" />
 	</bean>
 
 	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
 		<property name="requestFactory">
-			<bean class="org.springframework.http.client.CommonsClientHttpRequestFactory"/>
+			<bean
+				class="org.springframework.http.client.CommonsClientHttpRequestFactory" />
 		</property>
 		<property name="messageConverters">
 			<list>
