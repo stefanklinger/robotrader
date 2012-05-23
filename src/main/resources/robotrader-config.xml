@@ -18,4 +18,41 @@
 		<property name="packagesToScan" value="org.robotrader.quote.domain" />
 	</bean>
 
+	<bean id="quoteReceiver"
+		class="org.robotrader.quote.service.stocklytics.StockLyticsQuoteReceiver">
+		<constructor-arg ref="restTemplate" />
+		<constructor-arg value="b1305099774d5d67a84b5f1915909cfc6d2d85b5"/>
+	</bean>
+
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<property name="requestFactory">
+			<bean class="org.springframework.http.client.CommonsClientHttpRequestFactory"/>
+		</property>
+		<property name="messageConverters">
+			<list>
+				<bean class="org.springframework.http.converter.FormHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<ref bean="mediaType" />
+						</list>
+					</property>
+				</bean>
+				<bean
+					class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<ref bean="mediaType" />
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="mediaType" class="org.springframework.http.MediaType">
+		<constructor-arg value="text" />
+		<constructor-arg value="json" />
+	</bean>
 </beans>

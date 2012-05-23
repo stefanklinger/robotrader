@@ -20,13 +20,15 @@ public class Quote {
 	@ManyToOne
 	private Stock stock;
 
-	private double open, close, high, low, volume;
+	private double open, close, high, low;
+	
+	private long volume;
 
-	public void setVolume(double volume) {
+	public void setVolume(long volume) {
 		this.volume = volume;
 	}
 
-	public double getVolume() {
+	public long getVolume() {
 		return volume;
 	}
 
@@ -80,9 +82,5 @@ public class Quote {
 
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 }

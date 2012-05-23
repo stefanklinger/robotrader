@@ -8,6 +8,10 @@ public class Stock {
 
 	@Id
 	private String code;
+	
+	public Stock(String code) {
+		this.code = code;
+	}
 
 	public void setCode(String code) {
 		this.code = code;
