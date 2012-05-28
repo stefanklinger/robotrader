@@ -1,5 +1,6 @@
 package org.robotrader.quote.repository;
 
+import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robotrader.quote.domain.Quote;
@@ -17,9 +18,14 @@ public class QuoteRepositoryTest extends
 	@Autowired
 	private QuoteRepository quoteRepository;
 	
+	@Autowired
+	private SessionFactory sessionFactory;
+	
 	@Test
 	public void foo() {
 		Stock stock = new Stock("AAPL");
+		sessionFactory.getCurrentSession().save(stock);
+		
 		Quote quote = new Quote();
 		quote.setStock(stock);
 		quoteRepository.save(quote);

@@ -16,6 +16,13 @@
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan" value="org.robotrader.quote.domain" />
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.HSQLDialect
+				hibernate.connection.driver_class=org.hsqldb.jdbcDriver
+				hibernate.hbm2ddl.auto=create
+			</value>
+		</property>
 	</bean>
 
 	<bean
