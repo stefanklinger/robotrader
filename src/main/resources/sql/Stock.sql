@@ -1,0 +1,1 @@
+create table Stock(code varchar(20));

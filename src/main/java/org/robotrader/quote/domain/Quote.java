@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.LocalDate;
 
 @Entity
@@ -15,6 +16,7 @@ public class Quote {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
+	@Type(type="org.joda.time.contrib.hibernate.PersistentLocalDate")
 	private LocalDate date;
 
 	@ManyToOne
