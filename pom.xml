@@ -63,9 +63,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hsqldb</groupId>
+			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.8.1.1</version>
+			<version>1.8.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -89,13 +89,13 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time-hibernate</artifactId>
-			<version>1.2</version>
-		</dependency>
+			<version>1.1</version>
+		</dependency> 
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.5.2</version>
+			<version>1.6.4</version>
 		</dependency>
 
 		<dependency>
@@ -108,7 +108,7 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>1.6</version>
-		</dependency>
+		</dependency> 
 
 		<dependency>
 			<groupId>junit</groupId>

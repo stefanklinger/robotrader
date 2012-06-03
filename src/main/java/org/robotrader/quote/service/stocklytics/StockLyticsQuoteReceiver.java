@@ -40,7 +40,7 @@ public class StockLyticsQuoteReceiver implements QuoteReceiver {
 		List<Quote> quotes = new ArrayList<Quote>();
 		for (Entry<String, Object> entry : map.entrySet()) {
 			Quote quote = new Quote();
-			quote.setDate(LocalDate.parse(entry.getKey()));
+			quote.setDate(new LocalDate(entry.getKey()));
 			Map<String, Object> quoteInfo = (Map<String, Object>)entry.getValue();
 			quote.setClose(NumberUtils.toDouble((String) quoteInfo.get("close")));
 			quote.setHigh(NumberUtils.toDouble((String) quoteInfo.get("high")));
@@ -48,6 +48,7 @@ public class StockLyticsQuoteReceiver implements QuoteReceiver {
 			quote.setOpen(NumberUtils.toDouble((String) quoteInfo.get("open")));
 			quote.setVolume(NumberUtils.toLong((String) quoteInfo.get("volume")));
 			quote.setStock(stock);
+			quotes.add(quote);
 		}
 		return quotes;
 	}

@@ -1,1 +1,1 @@
-create table Quote (id bigint, open double, close double, high double, low double, volume bigint, date date, stock_code varchar(20) references Stock.code);
+create table Quote (id bigint AUTO_INCREMENT, open double, close double, high double, low double, volume bigint, date date, stock_code varchar(20) references Stock.code, PRIMARY KEY (id));
