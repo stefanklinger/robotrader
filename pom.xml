@@ -90,7 +90,7 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time-hibernate</artifactId>
 			<version>1.1</version>
-		</dependency> 
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -108,7 +108,7 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>1.6</version>
-		</dependency> 
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -117,5 +117,10 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
 	</dependencies>
 </project>

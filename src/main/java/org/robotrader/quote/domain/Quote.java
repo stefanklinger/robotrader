@@ -6,25 +6,40 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDate;
 
 @Entity
 public class Quote {
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Type(type="org.joda.time.contrib.hibernate.PersistentLocalDate")
+	@Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
 	private LocalDate date;
 
 	@ManyToOne
 	private Stock stock;
 
 	private double open, close, high, low;
-	
+
 	private long volume;
+	
+	public Quote() {
+		// for hibernate
+	}
+	
+	public Quote(Stock stock, LocalDate date, double open, double close, double high, double low) {
+		this.stock = stock;
+		this.open = open;
+		this.close = close;
+		this.high = high;
+		this.low = low;
+		this.date = date;
+	}
 
 	public void setVolume(long volume) {
 		this.volume = volume;
@@ -84,5 +99,30 @@ public class Quote {
 
 	public Long getId() {
 		return id;
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder().append(id).hashCode();
+	}
+
+	public boolean equals(Object other) {
+		if (other == null) {
+			return false;
+		}
+
+		if (this == other) {
+			return true;
+		}
+
+		if (!(other instanceof Quote)) {
+			return false;
+		}
+
+		Quote that = (Quote) other;
+
+		return new EqualsBuilder().append(date, that.date)
+				.append(stock, that.stock).append(open, that.open)
+				.append(close, that.close).append(high, that.high)
+				.append(low, that.low).isEquals();
 	}
 }
