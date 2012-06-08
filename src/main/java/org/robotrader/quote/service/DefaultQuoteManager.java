@@ -24,6 +24,9 @@ public class DefaultQuoteManager implements QuoteManager {
 	@Override
 	public void updateQuotes(Stock stock, List<Quote> quotes) {
 		Stock stock2 = stockRepository.findByCode(stock.getCode());
+		if (stock2 == null) {
+			throw new RuntimeException();
+		}
 		for (Quote quote : quotes) {
 			Quote quote2 = quoteRepository.findByStockAndDate(quote.getStock(),
 					quote.getDate());

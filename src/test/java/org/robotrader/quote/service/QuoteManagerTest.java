@@ -30,9 +30,8 @@ public class QuoteManagerTest {
 	}
 
 	@Test
-	@Ignore
 	public void foo() {
-		List<Quote> quotes = quoteReceiver.receive(new Stock("AAPL"), new LocalDate(2000, 1,1 ), new LocalDate());
-		quoteManager.updateQuotes(new Stock("AAPL"), quotes);
+		List<Quote> quotes = quoteReceiver.receive(new Stock("CS"), new LocalDate(2000, 1,1 ), new LocalDate());
+		quoteManager.updateQuotes(new Stock("CS"), quotes);
 	}
 }
