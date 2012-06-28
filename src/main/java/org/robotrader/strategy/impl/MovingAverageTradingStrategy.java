@@ -3,9 +3,9 @@ package org.robotrader.strategy.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.robotrader.order.PutOrCall;
 import org.robotrader.order.domain.BuyOrSell;
 import org.robotrader.order.domain.Order;
+import org.robotrader.order.domain.PutOrCall;
 import org.robotrader.quote.domain.Quote;
 import org.robotrader.strategy.TradingStrategy;
 import org.springframework.util.Assert;

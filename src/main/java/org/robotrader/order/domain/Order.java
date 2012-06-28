@@ -1,6 +1,5 @@
 package org.robotrader.order.domain;
 
-import org.robotrader.order.PutOrCall;
 import org.springframework.util.Assert;
 
 public class Order {
