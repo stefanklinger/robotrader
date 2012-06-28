@@ -1,6 +1,7 @@
 package org.robotrader.order.domain;
 
 import org.robotrader.order.PutOrCall;
+import org.springframework.util.Assert;
 
 public class Order {
 
@@ -17,5 +18,10 @@ public class Order {
 		this.price = price;
 		this.buyOrSell = buyOrSell;
 		this.putOrCall = putOrCall;
+	}
+	
+	public static Order createSellOrderFromBuyOrder(Order buyOrder, double price) {
+		Assert.isTrue(buyOrder.buyOrSell == BuyOrSell.Buy);
+		return new Order(buyOrder.quantity, price, BuyOrSell.Sell, buyOrder.putOrCall);
 	}
 }
