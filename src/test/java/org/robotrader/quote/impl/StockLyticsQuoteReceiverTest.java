@@ -1,4 +1,4 @@
-package org.robotrader.quote.stocklytics;
+package org.robotrader.quote.impl;
 
 import java.util.List;
 

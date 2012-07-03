@@ -27,17 +27,28 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	private Order previousOrder;
 
 	public MovingAverageTradingStrategy(int days) {
-		Assert.isTrue(days > 5);
+		Assert.isTrue(days > 4, "At least 5 days average required.");
 		this.days = days;
 	}
 
 	@Override
 	public void addQuote(Quote quote) {
+		checkAscendingOrderOfQuotes(quote);
 		currentOrder = null;
 		calculateAverage();
 		quotes.add(quote);
 		if (quotes.size() > days) {
 			quotes.remove(0);
+		}
+	}
+
+	private void checkAscendingOrderOfQuotes(Quote latestQuote) {
+		if (quotes.size() > 1) {
+			Quote previousQuote = quotes.get(quotes.size() - 1);
+			Assert.isTrue(latestQuote.getDate()
+					.isAfter(previousQuote.getDate()), String.format(
+					"Latest quote [%s] is not after previous quote [%s].",
+					latestQuote, previousQuote));
 		}
 	}
 
@@ -61,7 +72,7 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 		Quote quoteToday = quotes.get(quotes.size() - 1);
 		Quote quoteYesterday = quotes.get(quotes.size() - 2);
-		
+
 		if (previousOrder == null) {
 			checkForBuyOrder(quoteToday, quoteYesterday);
 		} else {
@@ -134,5 +145,9 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	@Override
 	public Order getNextOrder() {
 		return currentOrder;
+	}
+
+	public double getAverage() {
+		return average;
 	}
 }
