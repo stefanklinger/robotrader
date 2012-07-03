@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.robotrader.quote.domain.Quote;
 import org.robotrader.quote.domain.Stock;
 import org.robotrader.quote.repository.QuoteRepository;
-import org.robotrader.quote.service.stocklytics.StockLyticsQuoteReceiver;
+import org.robotrader.quote.service.impl.StockLyticsQuoteReceiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;

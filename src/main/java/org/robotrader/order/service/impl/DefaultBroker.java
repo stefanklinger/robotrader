@@ -1,5 +1,6 @@
 package org.robotrader.order.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.robotrader.order.domain.Order;
@@ -11,9 +12,14 @@ public class DefaultBroker implements Broker {
 
 	@Override
 	public List<Order> getOrders(List<Quote> quotes, TradingStrategy strategy) {
-		strategy.addQuote(quote);
-		strategy.
-		return null;
+		List<Order> orders = new ArrayList<Order>();
+		for (Quote quote: quotes) {
+			strategy.addQuote(quote);
+			if (strategy.hasOrder()) {
+				orders.add(strategy.getNextOrder());
+			}
+		}
+		
+		return orders;
 	}
-
 }

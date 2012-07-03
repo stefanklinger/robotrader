@@ -39,7 +39,7 @@
 	</bean>
 
 	<bean
-		class="org.robotrader.quote.repository.hibernate.HibernateQuoteRepository">
+		class="org.robotrader.quote.repository.impl.HibernateQuoteRepository">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
@@ -49,7 +49,7 @@
 	</bean>
 
 	<bean id="quoteReceiver"
-		class="org.robotrader.quote.service.stocklytics.StockLyticsQuoteReceiver">
+		class="org.robotrader.quote.service.impl.StockLyticsQuoteReceiver">
 		<constructor-arg ref="restTemplate" />
 		<constructor-arg value="b1305099774d5d67a84b5f1915909cfc6d2d85b5" />
 	</bean>
@@ -87,16 +87,16 @@
 		<constructor-arg value="json" />
 	</bean>
 	
-	<bean class="org.robotrader.quote.service.DefaultQuoteManager">
+	<bean class="org.robotrader.quote.service.impl.DefaultQuoteManager">
 		<constructor-arg ref="quoteRepository" />
 		<constructor-arg ref="stockRepository" />
 	</bean>
 	
-	<bean id="stockRepository" class="org.robotrader.quote.repository.hibernate.HibernateStockRepository">
+	<bean id="stockRepository" class="org.robotrader.quote.repository.impl.HibernateStockRepository">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<bean id="quoteRepository" class="org.robotrader.quote.repository.hibernate.HibernateQuoteRepository">
+	<bean id="quoteRepository" class="org.robotrader.quote.repository.impl.HibernateQuoteRepository">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
