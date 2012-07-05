@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 public class Stock {
@@ -41,5 +43,13 @@ public class Stock {
 		}
 
 		return StringUtils.equals(code, ((Stock) other).getCode());
+	}
+	
+	public int hashCode() {
+		return new HashCodeBuilder().append(code).toHashCode();
+	}
+	
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 }

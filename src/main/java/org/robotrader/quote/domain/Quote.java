@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDate;
 
@@ -124,5 +125,9 @@ public class Quote {
 				.append(stock, that.stock).append(open, that.open)
 				.append(close, that.close).append(high, that.high)
 				.append(low, that.low).isEquals();
+	}
+	
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 }

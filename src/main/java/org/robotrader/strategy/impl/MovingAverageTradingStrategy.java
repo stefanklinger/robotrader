@@ -34,9 +34,11 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	@Override
 	public void addQuote(Quote quote) {
 		checkAscendingOrderOfQuotes(quote);
+
 		currentOrder = null;
-		calculateAverage();
 		quotes.add(quote);
+		calculateAverage();
+		
 		if (quotes.size() > days) {
 			quotes.remove(0);
 		}
@@ -53,9 +55,6 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	}
 
 	private void calculateAverage() {
-		if (days != quotes.size()) {
-			return;
-		}
 		double sum = 0.0;
 		for (Quote quote : quotes) {
 			sum += quote.getClose();
