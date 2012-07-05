@@ -3,6 +3,7 @@ package org.robotrader.strategy.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.robotrader.order.domain.BuyOrSell;
 import org.robotrader.order.domain.Order;
 import org.robotrader.order.domain.OrderType;
@@ -12,6 +13,9 @@ import org.robotrader.strategy.TradingStrategy;
 import org.springframework.util.Assert;
 
 public class MovingAverageTradingStrategy implements TradingStrategy {
+
+	private static final Logger log = Logger
+			.getLogger(MovingAverageTradingStrategy.class);
 
 	private final List<Quote> quotes = new LinkedList<Quote>();
 
@@ -24,6 +28,8 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	private double average;
 
 	private Order buyOrder;
+
+	private double bestPrice;
 
 	public MovingAverageTradingStrategy(int days) {
 		Assert.isTrue(days > 4, "At least 5 days average required.");
@@ -72,11 +78,14 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 		if (buyOrder == null) {
 			buyOrder = checkForBuyOrder(quoteToday, quoteYesterday);
+			bestPrice = buyOrder != null ? buyOrder.price : 0.0;
+
 			return buyOrder;
 		} else {
 			Order order = checkForSellOrder(quoteToday, quoteYesterday);
 			if (order != null) {
 				buyOrder = null;
+				bestPrice = 0.0;
 				return order;
 			}
 		}
@@ -90,37 +99,46 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		}
 
 		if (buyOrder.putOrCall == PutOrCall.CALL
-				&& quoteYesterday.getHigh() > average
-				&& quoteToday.getLow() < average) {
+				&& quoteYesterday.getClose() > average
+				&& quoteToday.getClose() < average) {
 			// put order
-			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Default);
+			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
+					OrderType.Default);
 		}
 
 		if (buyOrder.putOrCall == PutOrCall.PUT
-				&& quoteYesterday.getLow() < average
-				&& quoteToday.getHigh() > average) {
+				&& quoteYesterday.getClose() < average
+				&& quoteToday.getClose() > average) {
 			// call order
-			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Default);
+			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
+					OrderType.Default);
 		}
 
 		return null;
 	}
 
 	private Order checkForStopLossOrder(Quote quoteToday) {
-		// TODO: use best price instead of previous order price
 		if (buyOrder.putOrCall == PutOrCall.CALL) {
-			double loss = buyOrder.price - quoteToday.getLow();
-			double lossPercentage = loss / buyOrder.price;
+			if (buyOrder.price > bestPrice) {
+				bestPrice = buyOrder.price;
+			}
+			double loss = bestPrice - quoteToday.getClose();
+			double lossPercentage = loss / bestPrice;
 			if (lossPercentage > stopLossPercentage) {
 				// sell
-				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Stop_Loss);
+				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
+						OrderType.Stop_Loss);
 			}
 		} else {
-			double loss = quoteToday.getHigh() - buyOrder.price;
-			double lossPercentage = loss / buyOrder.price;
+			if (buyOrder.price < bestPrice) {
+				bestPrice = buyOrder.price;
+			}
+			double loss = quoteToday.getClose() - bestPrice;
+			double lossPercentage = loss / bestPrice;
 			if (lossPercentage > stopLossPercentage) {
 				// sell
-				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Stop_Loss);
+				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
+						OrderType.Stop_Loss);
 			}
 		}
 
@@ -132,13 +150,24 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		double price = quoteToday.getClose();
 		int quantity = (int) (amount / price);
 
-		if (quoteYesterday.getHigh() > average && quoteToday.getLow() < average) {
+		if (quoteYesterday.getClose() > average
+				&& quoteToday.getClose() < average) {
+			log.debug(String
+					.format("Todays close [%s] below average [%s], yesterdays above [%s]. Buying Put Order.",
+							quoteToday.getClose(), average,
+							quoteYesterday.getClose()));
 			// put order
 			return new Order(quantity, price, BuyOrSell.Buy, PutOrCall.PUT,
 					quoteToday.getDate(), OrderType.Default);
 		}
 
-		if (quoteYesterday.getLow() < average && quoteToday.getHigh() > average) {
+		if (quoteYesterday.getClose() < average
+				&& quoteToday.getClose() > average) {
+			log.debug(String
+					.format("Todays close [%s] above average [%s], yesterdays below [%s]. Buying Call Order.",
+							quoteToday.getClose(), average,
+							quoteYesterday.getClose()));
+			
 			// call order
 			return new Order(quantity, price, BuyOrSell.Buy, PutOrCall.CALL,
 					quoteToday.getDate(), OrderType.Default);
