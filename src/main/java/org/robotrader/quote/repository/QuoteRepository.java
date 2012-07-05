@@ -12,4 +12,6 @@ public interface QuoteRepository extends GenericRepository<Quote, Long>{
 	void save(List<Quote> quotes);
 
 	Quote findByStockAndDate(Stock stock, LocalDate date);
+	
+	List<Quote> findAllByStockAndDates(String stock, LocalDate startDate, LocalDate endDate);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.robotrader.order.domain.BuyOrSell;
 import org.robotrader.order.domain.Order;
+import org.robotrader.order.domain.OrderType;
 import org.robotrader.order.domain.PutOrCall;
 import org.robotrader.quote.domain.Quote;
 import org.robotrader.strategy.TradingStrategy;
@@ -22,9 +23,7 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 	private double average;
 
-	private Order currentOrder;
-
-	private Order previousOrder;
+	private Order buyOrder;
 
 	public MovingAverageTradingStrategy(int days) {
 		Assert.isTrue(days > 4, "At least 5 days average required.");
@@ -32,16 +31,16 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	}
 
 	@Override
-	public void addQuote(Quote quote) {
+	public Order addQuote(Quote quote) {
 		checkAscendingOrderOfQuotes(quote);
 
-		currentOrder = null;
 		quotes.add(quote);
 		calculateAverage();
-		
+
 		if (quotes.size() > days) {
 			quotes.remove(0);
 		}
+		return hasOrder();
 	}
 
 	private void checkAscendingOrderOfQuotes(Quote latestQuote) {
@@ -63,87 +62,88 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		average = sum / quotes.size();
 	}
 
-	@Override
-	public boolean hasOrder() {
+	public Order hasOrder() {
 		if (days != quotes.size()) {
-			return false;
+			return null;
 		}
 
 		Quote quoteToday = quotes.get(quotes.size() - 1);
 		Quote quoteYesterday = quotes.get(quotes.size() - 2);
 
-		if (previousOrder == null) {
-			checkForBuyOrder(quoteToday, quoteYesterday);
+		if (buyOrder == null) {
+			buyOrder = checkForBuyOrder(quoteToday, quoteYesterday);
+			return buyOrder;
 		} else {
-			checkForStopLossOrder(quoteToday);
-			checkForSellOrder(quoteToday, quoteYesterday);
+			Order order = checkForSellOrder(quoteToday, quoteYesterday);
+			if (order != null) {
+				buyOrder = null;
+				return order;
+			}
 		}
-
-		return currentOrder != null;
+		return null;
 	}
 
-	private void checkForSellOrder(Quote quoteToday, Quote quoteYesterday) {
+	private Order checkForSellOrder(Quote quoteToday, Quote quoteYesterday) {
+		Order order = checkForStopLossOrder(quoteToday);
+		if (order != null) {
+			return order;
+		}
 
-		if (previousOrder.putOrCall == PutOrCall.CALL
+		if (buyOrder.putOrCall == PutOrCall.CALL
 				&& quoteYesterday.getHigh() > average
 				&& quoteToday.getLow() < average) {
 			// put order
-			currentOrder = Order.createSellOrderFromBuyOrder(previousOrder,
-					quoteToday.getLow());
+			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Default);
 		}
 
-		if (previousOrder.putOrCall == PutOrCall.PUT
+		if (buyOrder.putOrCall == PutOrCall.PUT
 				&& quoteYesterday.getLow() < average
 				&& quoteToday.getHigh() > average) {
 			// call order
-			currentOrder = Order.createSellOrderFromBuyOrder(previousOrder,
-					quoteToday.getHigh());
+			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Default);
 		}
 
+		return null;
 	}
 
-	private void checkForStopLossOrder(Quote quoteToday) {
+	private Order checkForStopLossOrder(Quote quoteToday) {
 		// TODO: use best price instead of previous order price
-		if (previousOrder.putOrCall == PutOrCall.CALL) {
-			double loss = previousOrder.price - quoteToday.getLow();
-			double lossPercentage = loss / previousOrder.price;
+		if (buyOrder.putOrCall == PutOrCall.CALL) {
+			double loss = buyOrder.price - quoteToday.getLow();
+			double lossPercentage = loss / buyOrder.price;
 			if (lossPercentage > stopLossPercentage) {
 				// sell
-				currentOrder = Order.createSellOrderFromBuyOrder(previousOrder,
-						quoteToday.getLow());
+				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Stop_Loss);
 			}
 		} else {
-			double loss = quoteToday.getHigh() - previousOrder.price;
-			double lossPercentage = loss / previousOrder.price;
+			double loss = quoteToday.getHigh() - buyOrder.price;
+			double lossPercentage = loss / buyOrder.price;
 			if (lossPercentage > stopLossPercentage) {
 				// sell
-				currentOrder = Order.createSellOrderFromBuyOrder(previousOrder,
-						quoteToday.getHigh());
+				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday, OrderType.Stop_Loss);
 			}
 		}
+
+		return null;
 	}
 
-	private void checkForBuyOrder(Quote quoteToday, Quote quoteYesterday) {
+	private Order checkForBuyOrder(Quote quoteToday, Quote quoteYesterday) {
 		// TODO: Can I really buy at close price?
 		double price = quoteToday.getClose();
 		int quantity = (int) (amount / price);
 
 		if (quoteYesterday.getHigh() > average && quoteToday.getLow() < average) {
 			// put order
-			currentOrder = new Order(quantity, price, BuyOrSell.Buy,
-					PutOrCall.PUT);
+			return new Order(quantity, price, BuyOrSell.Buy, PutOrCall.PUT,
+					quoteToday.getDate(), OrderType.Default);
 		}
 
 		if (quoteYesterday.getLow() < average && quoteToday.getHigh() > average) {
 			// call order
-			currentOrder = new Order(quantity, price, BuyOrSell.Buy,
-					PutOrCall.CALL);
+			return new Order(quantity, price, BuyOrSell.Buy, PutOrCall.CALL,
+					quoteToday.getDate(), OrderType.Default);
 		}
-	}
-
-	@Override
-	public Order getNextOrder() {
-		return currentOrder;
+		return null;
 	}
 
 	public double getAverage() {

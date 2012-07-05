@@ -10,7 +10,8 @@ import org.robotrader.quote.domain.Stock;
 import org.robotrader.quote.repository.QuoteRepository;
 
 public class HibernateQuoteRepository extends
-		AbstractGenericHibernateRepository<Quote, Long> implements QuoteRepository {
+		AbstractGenericHibernateRepository<Quote, Long> implements
+		QuoteRepository {
 
 	public HibernateQuoteRepository(SessionFactory sessionFactory) {
 		super(sessionFactory);
@@ -18,7 +19,7 @@ public class HibernateQuoteRepository extends
 
 	@Override
 	public void save(List<Quote> quotes) {
-		for (Quote quote: quotes) {
+		for (Quote quote : quotes) {
 			save(quote);
 		}
 	}
@@ -29,5 +30,17 @@ public class HibernateQuoteRepository extends
 				.createQuery("from Quote where stock = :stock and date = :date")
 				.setParameter("stock", stock).setParameter("date", date)
 				.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Quote> findAllByStockAndDates(String code, LocalDate startDate,
+			LocalDate endDate) {
+		return getSession()
+				.createQuery(
+						"from Quote where stock.code = :code and date between :startDate and :endDate")
+				.setParameter("code", code)
+				.setParameter("startDate", startDate)
+				.setParameter("endDate", endDate).list();
 	}
 }

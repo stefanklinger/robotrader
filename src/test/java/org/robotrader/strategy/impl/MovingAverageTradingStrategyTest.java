@@ -1,5 +1,6 @@
 package org.robotrader.strategy.impl;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -27,21 +28,23 @@ public class MovingAverageTradingStrategyTest {
 		Stock stock = new Stock("TEST");
 		LocalDate startDate = new LocalDate();
 		for (int i = 0; i < 5; i++) {
-			strategy.addQuote(new Quote(stock, startDate.plusDays(i), 1.0, 1.0,
-					1.0, 1.0));
-			assertFalse(strategy.hasOrder());
+			assertNull(strategy.addQuote(new Quote(stock, startDate.plusDays(i), 1.0, 1.0,
+					1.0, 1.0)));
 		}
 		assertEquals(1.0, strategy.getAverage(), 0.001);
 
-		strategy.addQuote(new Quote(stock, startDate.plusDays(5), 2.0, 2.0,
+		Order order = strategy.addQuote(new Quote(stock, startDate.plusDays(5), 2.0, 2.0,
 				2.0, 2.0));
-		assertTrue(strategy.hasOrder());
-		Order order = strategy.getNextOrder();
 		assertNotNull(order);
 		assertEquals(BuyOrSell.Buy, order.buyOrSell);
 		assertEquals(PutOrCall.CALL, order.putOrCall);
 		assertEquals(2.0, order.price, 0.001);
 		assertEquals(500.0, order.quantity, 0.001);
+	}
+	
+	@Test
+	public void sellCallOrder() {
+		
 	}
 
 	@Test

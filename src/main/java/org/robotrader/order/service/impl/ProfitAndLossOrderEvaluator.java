@@ -10,7 +10,6 @@ public class ProfitAndLossOrderEvaluator implements
 
 	@Override
 	public ProfitAndLossEvaluation evaluate(List<Order> orders) {
-		// TODO: do not hardcode this amount
 		ProfitAndLossEvaluation evaluation = new ProfitAndLossEvaluation();
 		for (Order order : orders) {
 			evaluation.addOrder(order);

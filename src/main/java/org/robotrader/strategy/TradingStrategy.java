@@ -5,9 +5,6 @@ import org.robotrader.quote.domain.Quote;
 
 public interface TradingStrategy {
 
-	void addQuote(Quote quote);
+	Order addQuote(Quote quote);
 	
-	boolean hasOrder();
-	
-	Order getNextOrder();
 }

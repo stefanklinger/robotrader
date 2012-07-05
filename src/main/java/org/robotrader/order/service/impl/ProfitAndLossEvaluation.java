@@ -14,6 +14,7 @@ public class ProfitAndLossEvaluation implements OrderEvaluation {
 	private Order buyOrder;
 	
 	public ProfitAndLossEvaluation() {
+		// TODO: do not hardcode this amount
 		this(1000.0);
 	}
 	
