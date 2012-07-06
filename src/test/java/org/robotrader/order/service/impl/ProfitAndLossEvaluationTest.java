@@ -29,7 +29,7 @@ public class ProfitAndLossEvaluationTest extends
 				new LocalDate(2011, 1, 1), new LocalDate(2012, 1, 1));
 		Broker broker = new DefaultBroker();
 		List<Order> orders = broker.getOrders(quotes,
-				new MovingAverageTradingStrategy(40));
+				new MovingAverageTradingStrategy(80));
 		for (Order order: orders) {
 			System.out.println(order);
 		}

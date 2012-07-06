@@ -14,9 +14,9 @@ public class DefaultBroker implements Broker {
 	public List<Order> getOrders(List<Quote> quotes, TradingStrategy strategy) {
 		List<Order> orders = new ArrayList<Order>();
 		for (Quote quote: quotes) {
-			Order order = strategy.addQuote(quote);
-			if (order != null) {
-				orders.add(order);
+			List<Order> currentOrders = strategy.addQuote(quote);
+			if (currentOrders != null) {
+				orders.addAll(currentOrders);
 			}
 		}
 		

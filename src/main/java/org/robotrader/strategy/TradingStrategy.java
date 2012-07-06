@@ -1,10 +1,12 @@
 package org.robotrader.strategy;
 
+import java.util.List;
+
 import org.robotrader.order.domain.Order;
 import org.robotrader.quote.domain.Quote;
 
 public interface TradingStrategy {
 
-	Order addQuote(Quote quote);
+	List<Order> addQuote(Quote quote);
 	
 }

@@ -1,10 +1,10 @@
 package org.robotrader.strategy.impl;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+
+import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.junit.Test;
@@ -33,8 +33,9 @@ public class MovingAverageTradingStrategyTest {
 		}
 		assertEquals(1.0, strategy.getAverage(), 0.001);
 
-		Order order = strategy.addQuote(new Quote(stock, startDate.plusDays(5), 2.0, 2.0,
+		List<Order> orders = strategy.addQuote(new Quote(stock, startDate.plusDays(5), 2.0, 2.0,
 				2.0, 2.0));
+		Order order = orders.get(0);
 		assertNotNull(order);
 		assertEquals(BuyOrSell.Buy, order.buyOrSell);
 		assertEquals(PutOrCall.CALL, order.putOrCall);

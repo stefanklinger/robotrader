@@ -1,5 +1,7 @@
 package org.robotrader.strategy.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 	private final double amount = 1000.0;
 
-	private final double stopLossPercentage = 0.05;
+	private final double stopLossPercentage = 0.10;
 
 	private final int days;
 
@@ -37,9 +39,10 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 	}
 
 	@Override
-	public Order addQuote(Quote quote) {
+	public List<Order> addQuote(Quote quote) {
 		checkAscendingOrderOfQuotes(quote);
 
+		log.debug(String.format("Adding quote [%s]", quote));
 		quotes.add(quote);
 		calculateAverage();
 
@@ -66,9 +69,11 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		}
 
 		average = sum / quotes.size();
+		log.debug(String.format("Average [%s] on [%s]", average,
+				quotes.get(quotes.size() - 1).getDate()));
 	}
 
-	public Order hasOrder() {
+	public List<Order> hasOrder() {
 		if (days != quotes.size()) {
 			return null;
 		}
@@ -80,13 +85,18 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 			buyOrder = checkForBuyOrder(quoteToday, quoteYesterday);
 			bestPrice = buyOrder != null ? buyOrder.price : 0.0;
 
-			return buyOrder;
+			return buyOrder != null ? Arrays.asList(buyOrder) : null;
 		} else {
 			Order order = checkForSellOrder(quoteToday, quoteYesterday);
 			if (order != null) {
-				buyOrder = null;
-				bestPrice = 0.0;
-				return order;
+				List<Order> orders = new ArrayList<Order>();
+				orders.add(order);
+				buyOrder = checkForBuyOrder(quoteToday, quoteYesterday);
+				bestPrice = buyOrder != null ? buyOrder.price : 0.0;
+				if (buyOrder != null) {
+					orders.add(buyOrder);
+				}
+				return orders;
 			}
 		}
 		return null;
@@ -101,6 +111,10 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		if (buyOrder.putOrCall == PutOrCall.CALL
 				&& quoteYesterday.getClose() > average
 				&& quoteToday.getClose() < average) {
+			log.debug(String
+					.format("Todays close [%s] below average [%s], yesterdays above [%s]. Selling Call Order.",
+							quoteToday.getClose(), average,
+							quoteYesterday.getClose()));
 			// put order
 			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
 					OrderType.Default);
@@ -109,6 +123,11 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		if (buyOrder.putOrCall == PutOrCall.PUT
 				&& quoteYesterday.getClose() < average
 				&& quoteToday.getClose() > average) {
+			log.debug(String
+					.format("Todays close [%s] above average [%s], yesterdays below [%s]. Selling Put Order.",
+							quoteToday.getClose(), average,
+							quoteYesterday.getClose()));
+
 			// call order
 			return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
 					OrderType.Default);
@@ -119,8 +138,8 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 	private Order checkForStopLossOrder(Quote quoteToday) {
 		if (buyOrder.putOrCall == PutOrCall.CALL) {
-			if (buyOrder.price > bestPrice) {
-				bestPrice = buyOrder.price;
+			if (quoteToday.getClose() > bestPrice) {
+				bestPrice = quoteToday.getClose();
 			}
 			double loss = bestPrice - quoteToday.getClose();
 			double lossPercentage = loss / bestPrice;
@@ -130,8 +149,8 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 						OrderType.Stop_Loss);
 			}
 		} else {
-			if (buyOrder.price < bestPrice) {
-				bestPrice = buyOrder.price;
+			if (quoteToday.getClose() < bestPrice) {
+				bestPrice = quoteToday.getClose();
 			}
 			double loss = quoteToday.getClose() - bestPrice;
 			double lossPercentage = loss / bestPrice;
@@ -167,7 +186,7 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 					.format("Todays close [%s] above average [%s], yesterdays below [%s]. Buying Call Order.",
 							quoteToday.getClose(), average,
 							quoteYesterday.getClose()));
-			
+
 			// call order
 			return new Order(quantity, price, BuyOrSell.Buy, PutOrCall.CALL,
 					quoteToday.getDate(), OrderType.Default);
