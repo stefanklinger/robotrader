@@ -18,12 +18,12 @@ public class MovingAverageTradingStrategyTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void lowNumberOfAverageDays() {
-		new MovingAverageTradingStrategy(2);
+		new SimpleMovingAverageTradingStrategy(2);
 	}
 
 	@Test
 	public void buyCallOrder() {
-		MovingAverageTradingStrategy strategy = new MovingAverageTradingStrategy(
+		SimpleMovingAverageTradingStrategy strategy = new SimpleMovingAverageTradingStrategy(
 				5);
 		Stock stock = new Stock("TEST");
 		LocalDate startDate = new LocalDate();

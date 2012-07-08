@@ -38,7 +38,7 @@ public class HibernateQuoteRepository extends
 			LocalDate endDate) {
 		return getSession()
 				.createQuery(
-						"from Quote where stock.code = :code and date between :startDate and :endDate")
+						"from Quote where stock.code = :code and date between :startDate and :endDate order by date asc")
 				.setParameter("code", code)
 				.setParameter("startDate", startDate)
 				.setParameter("endDate", endDate).list();

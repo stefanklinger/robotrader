@@ -14,26 +14,28 @@ import org.robotrader.quote.domain.Quote;
 import org.robotrader.strategy.TradingStrategy;
 import org.springframework.util.Assert;
 
-public class MovingAverageTradingStrategy implements TradingStrategy {
+public class SimpleMovingAverageTradingStrategy implements TradingStrategy {
 
 	private static final Logger log = Logger
-			.getLogger(MovingAverageTradingStrategy.class);
+			.getLogger(SimpleMovingAverageTradingStrategy.class);
 
-	private final List<Quote> quotes = new LinkedList<Quote>();
+	protected final List<Quote> quotes = new LinkedList<Quote>();
 
 	private final double amount = 1000.0;
 
-	private final double stopLossPercentage = 0.10;
+	private final double buyPriceStopLossPercentage = 0.05;
 
-	private final int days;
+	private final double bestPriceStopLossPercentage = 0.10;
+	
+	protected final int days;
 
-	private double average;
+	protected double average;
 
 	private Order buyOrder;
 
 	private double bestPrice;
 
-	public MovingAverageTradingStrategy(int days) {
+	public SimpleMovingAverageTradingStrategy(int days) {
 		Assert.isTrue(days > 4, "At least 5 days average required.");
 		this.days = days;
 	}
@@ -44,7 +46,7 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 
 		log.debug(String.format("Adding quote [%s]", quote));
 		quotes.add(quote);
-		calculateAverage();
+		average = calculateAverage(quote);
 
 		if (quotes.size() > days) {
 			quotes.remove(0);
@@ -62,15 +64,16 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		}
 	}
 
-	private void calculateAverage() {
+	protected double calculateAverage(Quote latestQuote) {
 		double sum = 0.0;
 		for (Quote quote : quotes) {
 			sum += quote.getClose();
 		}
 
-		average = sum / quotes.size();
+		double average = sum / quotes.size();
 		log.debug(String.format("Average [%s] on [%s]", average,
-				quotes.get(quotes.size() - 1).getDate()));
+				latestQuote.getDate()));
+		return average;
 	}
 
 	public List<Order> hasOrder() {
@@ -141,9 +144,10 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 			if (quoteToday.getClose() > bestPrice) {
 				bestPrice = quoteToday.getClose();
 			}
-			double loss = bestPrice - quoteToday.getClose();
-			double lossPercentage = loss / bestPrice;
-			if (lossPercentage > stopLossPercentage) {
+			double bestPriceLossPercentage = getLossPercentage(quoteToday.getClose(), bestPrice);
+			double buyPriceLossPercentage = getLossPercentage(quoteToday.getClose(), buyOrder.price);
+
+			if (bestPriceLossPercentage > bestPriceStopLossPercentage || buyPriceLossPercentage > buyPriceStopLossPercentage) {
 				// sell
 				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
 						OrderType.Stop_Loss);
@@ -152,9 +156,10 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 			if (quoteToday.getClose() < bestPrice) {
 				bestPrice = quoteToday.getClose();
 			}
-			double loss = quoteToday.getClose() - bestPrice;
-			double lossPercentage = loss / bestPrice;
-			if (lossPercentage > stopLossPercentage) {
+			double bestPriceLossPercentage = getLossPercentage(bestPrice, quoteToday.getClose());
+			double buyPriceLossPercentage = getLossPercentage( buyOrder.price, quoteToday.getClose());
+
+			if (bestPriceLossPercentage > bestPriceStopLossPercentage || buyPriceLossPercentage > buyPriceStopLossPercentage) {
 				// sell
 				return Order.createSellOrderFromBuyOrder(buyOrder, quoteToday,
 						OrderType.Stop_Loss);
@@ -162,6 +167,12 @@ public class MovingAverageTradingStrategy implements TradingStrategy {
 		}
 
 		return null;
+	}
+
+	private double getLossPercentage(double currentPrice, double startPrice) {
+		double loss = startPrice - currentPrice;
+		double lossPercentage = loss / startPrice;
+		return lossPercentage;
 	}
 
 	private Order checkForBuyOrder(Quote quoteToday, Quote quoteYesterday) {
